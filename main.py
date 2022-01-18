@@ -10,7 +10,7 @@ from PyQt5.QtCore import Qt
 
 
 # Using a service account
-cred = credentials.Certificate('booklist-163c0-firebase-adminsdk-ndzn5-3320ed0021.json')
+cred = credentials.Certificate('')
 firebase_admin.initialize_app(cred)
 
 # Setting up the Database
