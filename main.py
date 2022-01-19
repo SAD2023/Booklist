@@ -28,9 +28,19 @@ def make_pdf(text):
   pdf.add_page()
 
   pdf.set_font("Arial", size = 15)
-    
-  pdf.multi_cell(200, 10, txt = text, 
-          align = 'L')
+
+  for book in text:  
+    book_info_processed = ""
+    pdf.set_font("Arial", size = 15, style="U")
+    book_info_processed = book_info_processed + book["name"]
+    pdf.multi_cell(200, 10, txt = book["name"], 
+            align = 'L')
+    pdf.set_font("Arial", size = 15, style="")
+    pdf.multi_cell(w = 0, h=10, txt = "          Rating: " + str(book["rating"]), 
+            align = 'J')
+    pdf.multi_cell(w = 0, h=20, txt = "          Thoughts: " + book["thoughts"], 
+            align = 'J')
+
 
   pdf.output("books.pdf")   
 
@@ -63,11 +73,13 @@ Gets the list of books and their corresponding information.
 def download():
   doc_ref = db.collection('books')
   docs = doc_ref.stream()
-  information = ""
+  information = []
   for doc in docs:
-    information += (f'{doc.id} => {doc.to_dict()}')
+    information.append(doc.to_dict())
   
+  print(information)
   make_pdf(information)
+  
 
 
 
