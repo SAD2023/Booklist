@@ -12,8 +12,8 @@ from fpdf import FPDF
 import sys
 
 # Using a service account
-cred = credentials.Certificate('booklist-163c0-firebase-adminsdk-ndzn5-3320ed0021.json')
-firebase_admin.initialize_app(cred, {'storageBucket': 'booklist-163c0.appspot.com'})
+cred = credentials.Certificate('')
+firebase_admin.initialize_app(cred, {'storageBucket': ''})
 
 # Setting up the Database
 db = firestore.client()
