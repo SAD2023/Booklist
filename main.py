@@ -2,19 +2,37 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 from firebase_admin import firestore
+from firebase_admin import storage
 
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QFileDialog
 from PyQt5.QtGui import QIntValidator,QDoubleValidator,QFont
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from fpdf import FPDF
+import sys
 
 # Using a service account
-cred = credentials.Certificate('')
-firebase_admin.initialize_app(cred)
+cred = credentials.Certificate('booklist-163c0-firebase-adminsdk-ndzn5-3320ed0021.json')
+firebase_admin.initialize_app(cred, {'storageBucket': 'booklist-163c0.appspot.com'})
 
 # Setting up the Database
 db = firestore.client()
+
+fileName = "books.pdf"
+
+
+"""
+  Uploads the local file with the name fileName to the firebase storage
+
+    Parameters:
+      fileName: string of a file name
+"""
+def upload_file(fileName):
+  bucket = storage.bucket()
+  name = fileName.split("/")[-1]
+  print(name)
+  blob = bucket.blob(name)
+  blob.upload_from_filename(fileName)
 
 """ 
   Creates a pdf with the provided text.
@@ -89,9 +107,10 @@ def download():
 
   Parameters: none
 """
-class MainWindow():
+class MainWindow(QWidget):
   def __init__(self):
-    app = QApplication([])
+    QWidget.__init__(self)
+    #app = QApplication([])
     window = QWidget()
     window.setFixedWidth(400)
     window.setFixedHeight(250)
@@ -103,6 +122,7 @@ class MainWindow():
 
     button1 = QPushButton('Add')
     button2 = QPushButton('Generate List')
+    button3 = QPushButton('Add Pdf')
     
     e1 = QLineEdit()
     e1.setAlignment(Qt.AlignRight)
@@ -125,10 +145,11 @@ class MainWindow():
     layout.addWidget(e1)
     layout.addWidget(e2)
     layout.addWidget(e3)
+    layout.addWidget(button3)
     layout.addWidget(button1)
     layout.addWidget(button2)
 
-    
+    button3.clicked.connect(lambda: self.get_file())
     button1.clicked.connect(lambda: upload(e1, e1.text(), e2, e2.text(), e3, e3.text()))
     button2.clicked.connect(lambda : download())
 
@@ -137,21 +158,11 @@ class MainWindow():
     window.show()
     app.exec()
   
-  def show_new_window(self):
-    w = AnotherWindow()
-    w.show()
+  def get_file(self):
+        file_name = QFileDialog.getOpenFileName(self, 'Open File', '.')
+        upload_file(file_name[0])
+        print(file_name[0])
 
-class AnotherWindow(QWidget):
-    """
-    This "window" is a QWidget. If it has no parent, it
-    will appear as a free-floating window as we want.
-    """
-    def __init__(self):
-        super().__init__()
-        layout = QVBoxLayout()
-        self.label = QLabel("Another Window")
-        layout.addWidget(self.label)
-        self.setLayout(layout)
 
 """
 def window():
@@ -204,4 +215,5 @@ def window():
 
 # Starts running the program
 if __name__=='__main__':
+  app = QApplication(sys.argv)
   MainWindow()
